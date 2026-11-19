@@ -1,0 +1,545 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 50
+
+// Parallel arrays to store book details
+int bookID[MAX];
+char bookName[MAX][100];
+char authorName[MAX][100];
+char category[MAX][50];
+float price[MAX];
+int availability[MAX];
+
+int count = 0;
+
+// Function declarations
+void addBook();
+void displayBooks();
+void searchById();
+void searchByName();
+void issueBook();
+void returnBook();
+void updateBook();
+void countBooks();
+void displayAvailable();
+int findBook(int id);
+void displayOneBook(int i);
+
+// Find book using ID
+int findBook(int id)
+{
+    int i;
+
+    for(i = 0; i < count; i++)
+    {
+        if(bookID[i] == id)
+            return i;
+    }
+
+    return -1;
+}
+
+// Display one book
+void displayOneBook(int i)
+{
+    printf("\nBook ID      : %d", bookID[i]);
+    printf("\nBook Name    : %s", bookName[i]);
+    printf("\nAuthor Name  : %s", authorName[i]);
+    printf("\nCategory     : %s", category[i]);
+    printf("\nPrice        : %.2f", price[i]);
+    printf("\nAvailability : %s\n",
+           availability[i] ? "Available" : "Issued");
+}
+
+// Add new book
+void addBook()
+{
+    int id;
+
+    if(count >= MAX)
+    {
+        printf("\nLibrary is full! Cannot add more books.\n");
+        return;
+    }
+
+    printf("\nEnter Book ID: ");
+    if(scanf("%d", &id) != 1)
+    {
+        printf("Invalid ID!\n");
+        while(getchar() != '\n');
+        return;
+    }
+
+    if(findBook(id) != -1)
+    {
+        printf("\nBook ID already exists!\n");
+        return;
+    }
+
+    bookID[count] = id;
+
+    printf("Enter Book Name: ");
+    scanf(" %99[^\n]", bookName[count]);
+
+    printf("Enter Author Name: ");
+    scanf(" %99[^\n]", authorName[count]);
+
+    printf("Enter Category: ");
+    scanf(" %49[^\n]", category[count]);
+
+    printf("Enter Price: ");
+    if(scanf("%f", &price[count]) != 1 || price[count] < 0)
+    {
+        printf("Invalid price!\n");
+        while(getchar() != '\n');
+        return;
+    }
+
+    availability[count] = 1;
+
+    count++;
+
+    printf("\nBook added successfully!\n");
+}
+
+// Display all books
+void displayBooks()
+{
+    int i;
+
+    if(count == 0)
+    {
+        printf("\nNo books available!\n");
+        return;
+    }
+
+    printf("\n========== ALL BOOK DETAILS ==========\n");
+
+    for(i = 0; i < count; i++)
+    {
+        displayOneBook(i);
+        printf("----------------------------------\n");
+    }
+}
+
+// Search book by ID
+void searchById()
+{
+    int id, index;
+
+    printf("\nEnter Book ID to search: ");
+
+    if(scanf("%d", &id) != 1)
+    {
+        printf("Invalid ID!\n");
+        while(getchar() != '\n');
+        return;
+    }
+
+    index = findBook(id);
+
+    if(index == -1)
+    {
+        printf("\nBook not found!\n");
+    }
+    else
+    {
+        printf("\nBook Found!\n");
+        displayOneBook(index);
+    }
+}
+
+// Search book by name
+void searchByName()
+{
+    char name[100];
+    int i, found = 0;
+
+    printf("\nEnter Book Name to search: ");
+    scanf(" %99[^\n]", name);
+
+    for(i = 0; i < count; i++)
+    {
+        if(strstr(bookName[i], name) != NULL)
+        {
+            displayOneBook(i);
+            found = 1;
+        }
+    }
+
+    if(!found)
+        printf("\nBook not found!\n");
+}
+
+// Issue book
+void issueBook()
+{
+    int id, index;
+    static int issueCount = 0;
+
+    printf("\nEnter Book ID to issue: ");
+
+    if(scanf("%d", &id) != 1)
+    {
+        printf("Invalid ID!\n");
+        while(getchar() != '\n');
+        return;
+    }
+
+    index = findBook(id);
+
+    if(index == -1)
+    {
+        printf("\nBook not found!\n");
+    }
+    else if(availability[index] == 0)
+    {
+        printf("\nBook is already issued!\n");
+    }
+    else
+    {
+        availability[index] = 0;
+        issueCount++;
+
+        printf("\nBook issued successfully!\n");
+        printf("Total successful issues: %d\n", issueCount);
+    }
+}
+
+// Return book
+void returnBook()
+{
+    int id, index;
+
+    printf("\nEnter Book ID to return: ");
+
+    if(scanf("%d", &id) != 1)
+    {
+        printf("Invalid ID!\n");
+        while(getchar() != '\n');
+        return;
+    }
+
+    index = findBook(id);
+
+    if(index == -1)
+    {
+        printf("\nBook not found!\n");
+    }
+    else if(availability[index] == 1)
+    {
+        printf("\nBook is already available!\n");
+    }
+    else
+    {
+        availability[index] = 1;
+
+        printf("\nBook returned successfully!\n");
+    }
+}
+
+// Update book details
+void updateBook()
+{
+    int id, index;
+
+    printf("\nEnter Book ID to update: ");
+
+    if(scanf("%d", &id) != 1)
+    {
+        printf("Invalid ID!\n");
+        while(getchar() != '\n');
+        return;
+    }
+
+    index = findBook(id);
+
+    if(index == -1)
+    {
+        printf("\nBook not found!\n");
+        return;
+    }
+
+    printf("\nEnter New Book Name: ");
+    scanf(" %99[^\n]", bookName[index]);
+
+    printf("Enter New Author Name: ");
+    scanf(" %99[^\n]", authorName[index]);
+
+    printf("Enter New Category: ");
+    scanf(" %49[^\n]", category[index]);
+
+    printf("Enter New Price: ");
+
+    if(scanf("%f", &price[index]) != 1 || price[index] < 0)
+    {
+        printf("Invalid price!\n");
+        while(getchar() != '\n');
+        return;
+    }
+
+    printf("\nBook details updated successfully!\n");
+}
+
+// Count total books
+void countBooks()
+{
+    printf("\nTotal Number of Books: %d\n", count);
+}
+
+// Display available books
+void displayAvailable()
+{
+    int i, found = 0;
+
+    printf("\n========== AVAILABLE BOOKS ==========\n");
+
+    for(i = 0; i < count; i++)
+    {
+        if(availability[i] == 1)
+        {
+            displayOneBook(i);
+            printf("----------------------------------\n");
+            found = 1;
+        }
+    }
+
+    if(!found)
+        printf("\nNo books are currently available!\n");
+}
+
+// Main function
+int main()
+{
+    int choice;
+
+    do
+    {
+        printf("\n\n");
+        printf("========================================\n");
+        printf("       LIBRARY MANAGEMENT SYSTEM        \n");
+        printf("========================================\n");
+
+        printf("1. Add New Book\n");
+        printf("2. Display All Books\n");
+        printf("3. Search Book by ID\n");
+        printf("4. Search Book by Name\n");
+        printf("5. Issue Book\n");
+        printf("6. Return Book\n");
+        printf("7. Update Book Details\n");
+        printf("8. Count Total Books\n");
+        printf("9. Display Available Books\n");
+        printf("10. Exit\n");
+
+        printf("\nEnter your choice: ");
+
+        if(scanf("%d", &choice) != 1)
+        {
+            printf("\nInvalid input! Enter a number.\n");
+            while(getchar() != '\n');
+            continue;
+        }
+
+        switch(choice)
+        {
+            case 1:
+                addBook();
+                break;
+
+            case 2:
+                displayBooks();
+                break;
+
+            case 3:
+                searchById();
+                break;
+
+            case 4:
+                searchByName();
+                break;
+
+            case 5:
+                issueBook();
+                break;
+
+            case 6:
+                returnBook();
+                break;
+
+            case 7:
+                updateBook();
+                break;
+
+            case 8:
+                countBooks();
+                break;
+
+            case 9:
+                displayAvailable();
+                break;
+
+            case 10:
+                printf("\nThank you for using Library Management System!\n");
+                break;
+
+            default:
+                printf("\nInvalid choice! Please select 1 to 10.\n");
+        }
+
+    } while(choice != 10);
+
+    return 0;
+}
+
+
+
+
+OUTPUIT;
+
+========================================
+       LIBRARY MANAGEMENT SYSTEM
+========================================
+1. Add New Book
+2. Display All Books
+3. Search Book by ID
+4. Search Book by Name
+5. Issue Book
+6. Return Book
+7. Update Book Details
+8. Count Total Books
+9. Display Available Books
+10. Exit
+
+Enter your choice: 1
+
+
+Enter Book ID: 101
+Enter Book Name: C Programming
+Enter Author Name: Dennis Ritchie
+Enter Category: Programming
+Enter Price: 450
+
+Book added successfully!
+
+Enter your choice: 1
+
+Enter Book ID: 102
+Enter Book Name: Python Basics
+Enter Author Name: Guido Rossum
+Enter Category: Programming
+Enter Price: 500
+
+Book added successfully!
+
+
+
+
+Enter your choice: 2
+
+========== ALL BOOK DETAILS ==========
+
+Book ID      : 101
+Book Name    : C Programming
+Author Name  : Dennis Ritchie
+Category     : Programming
+Price        : 450.00
+Availability : Available
+----------------------------------
+
+Book ID      : 102
+Book Name    : Python Basics
+Author Name  : Guido Rossum
+Category     : Programming
+Price        : 500.00
+Availability : Available
+----------------------------------
+
+
+
+Enter your choice: 3
+
+Enter Book ID to search: 101
+
+Book Found!
+
+Book ID      : 101
+Book Name    : C Programming
+Author Name  : Dennis Ritchie
+Category     : Programming
+Price        : 450.00
+Availability : Available
+
+
+
+Enter your choice: 4
+
+Enter Book Name to search: Python
+
+Book ID      : 102
+Book Name    : Python Basics
+Author Name  : Guido Rossum
+Category     : Programming
+Price        : 500.00
+Availability : Available
+
+
+Enter your choice: 5
+
+Enter Book ID to issue: 101
+
+Book issued successfully!
+Total successful issues: 1
+
+
+Enter your choice: 6
+
+Enter Book ID to return: 101
+
+Book returned successfully!
+
+
+Enter your choice: 7
+
+Enter Book ID to update: 102
+
+Enter New Book Name: Advanced Python
+Enter New Author Name: Guido Rossum
+Enter New Category: Programming
+Enter New Price: 600
+
+Book details updated successfully!
+
+
+
+Enter your choice: 8
+
+Total Number of Books: 2
+
+
+
+Enter your choice: 9
+
+========== AVAILABLE BOOKS ==========
+
+Book ID      : 101
+Book Name    : C Programming
+Author Name  : Dennis Ritchie
+Category     : Programming
+Price        : 450.00
+Availability : Available
+----------------------------------
+
+Book ID      : 102
+Book Name    : Advanced Python
+Author Name  : Guido Rossum
+Category     : Programming
+Price        : 600.00
+Availability : Available
+----------------------------------
+
+
+
+Enter your choice: 10
+
+Thank you for using Library Management System!
